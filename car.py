@@ -1,35 +1,31 @@
-#   Autonomous Agents Project 2023
-#       Nikolaos Papoutsakis
-#           2019030206
-
-#  Project: Self-Driving RaceCar - AI using Pygame & NEAT (neural networks)
-
 import pygame
+import os
 
 class RaceCar(pygame.sprite.Sprite):
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
-        self.car_image = pygame.image.load("car.png")
-        self.image = self.car_image
+        self.original_image = pygame.image.load(os.path.join("Images", "car.png"))
+        self.image = self.image = pygame.transform.scale(self.original_image, (50, 50))
 
         # Starting position on grid
         self.rect = self.image.get_rect(center=(430, 90))
 
-        # 
-        self.velocity = pygame.math.Vector2(0.5, 0)
+        # Movement
+        self.velocity_vector = pygame.math.Vector2(0.4, 0)
+        self.direction_vector = 0
+
         self.isDriving = False
-        self.angle = 0  
     
+    # Updating 
     def update(self):
         self.drive()
         self.rotate()
-        
 
+    # Move the car forward
     def drive(self):
-        
+        if self.isDriving:
+            self.rect.center += self.velocity_vector * 3
 
-        return
-
+    # Rotate car image and update
     def rotate(self):
-        
         return

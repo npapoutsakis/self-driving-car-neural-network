@@ -6,23 +6,22 @@
 
 import pygame
 import sys
-import os
 import neat
 import math
 
 from Car import RaceCar
 
-# Track dimensions
-WINDOW_WIDTH = 1212
-WINDOW_HEIGHT = 682
-
 # Game basics
-SCREEN =  pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-TRACK = pygame.image.load(os.path.join("Images", "track.png"))
+TRACK = pygame.image.load("Images/track.png")
 
+# Setup window
+SCREEN =  pygame.display.set_mode((TRACK.get_width(), TRACK.get_height()))
+
+# Init RaceCars
 car = pygame.sprite.GroupSingle(RaceCar())
 
 def eval_genomes():
+
     SCREEN.blit(TRACK, (0, 0))
 
     # Handle events
@@ -31,20 +30,16 @@ def eval_genomes():
             pygame.quit()
             sys.exit()
 
-    # Get user input
-    user_input = pygame.key.get_pressed()
 
-    # Update car position and rotation based on user input
-    if user_input[pygame.K_UP]:
-        car.sprite.isDriving = True
-    else:
-        car.sprite.isDriving = False
+
 
     # Update car position and rotation
     car.update()
 
     # Render
     car.draw(SCREEN)
+    
+    # Update display
     pygame.display.update()
 
 
@@ -55,13 +50,13 @@ if __name__ == "__main__":
     # main()
     running = True
     while running:
-        # Evaluate genomes and update game state
-        eval_genomes()
 
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False  # Set running flag to False to exit the loop
+        # Evaluate genomes and update game state
+        eval_genomes()
 
     pygame.quit()  # Quit Pygame properly
     sys.exit()  # Exit the script

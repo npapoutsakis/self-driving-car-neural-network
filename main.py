@@ -6,18 +6,11 @@
 
 import pygame
 import sys
-import neat
-import math
 
 from Car import RaceCar
+from Utils import TRACK, SCREEN
 
-# Game basics
-TRACK = pygame.image.load("Images/track.png")
-
-# Setup window
-SCREEN =  pygame.display.set_mode((TRACK.get_width(), TRACK.get_height()))
-
-# Init RaceCars
+# Init RaceCar
 car = pygame.sprite.GroupSingle(RaceCar())
 
 def eval_genomes():
@@ -30,8 +23,23 @@ def eval_genomes():
             pygame.quit()
             sys.exit()
 
+    user_input = pygame.key.get_pressed()
+    
+    if sum(user_input) <= 1:
+        car.sprite.isDriving = False
+        car.sprite.direction_vector = 0
+
+    if user_input[pygame.K_UP]:
+        car.sprite.isDriving = True
+    else:
+        car.sprite.isDriving = False
+
+    if user_input[pygame.K_RIGHT]:
+        car.sprite.direction_vector = 1
 
 
+    if user_input[pygame.K_LEFT]:
+        car.sprite.direction_vector = -1
 
     # Update car position and rotation
     car.update()

@@ -17,7 +17,7 @@ class RaceCar(pygame.sprite.Sprite):
         # self.image = pygame.transform.scale(self.car_image, (50, 50))        
 
         # Starting position on grid
-        self.rect = self.image.get_rect(center=(680, 305))
+        self.rect = self.image.get_rect(center=(505, 195))
         
         # Movement
         self.velocity_vector = pygame.math.Vector2(0.8, 0)

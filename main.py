@@ -91,7 +91,7 @@ def main(config_path):
 
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
-    pop.run(setup_enviroment, 50)
+    pop.run(setup_enviroment, 30)
     return
 
 

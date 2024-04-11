@@ -1,4 +1,4 @@
-#   Autonomous Agents Project 2023
+#   Autonomous Agents Project 2024
 #       Nikolaos Papoutsakis
 #           2019030206
 
@@ -6,66 +6,95 @@
 
 import pygame
 import sys
+import neat
 
-from Car import RaceCar
-from Utils import TRACK, SCREEN
+from car import RaceCar
+from utils import TRACK, SCREEN
 
-# Init RaceCar
-car = pygame.sprite.GroupSingle(RaceCar())
+# setup pygame env and run the sim
+def setup_enviroment(genomes, config):
+    global cars, ge, nets
 
-def eval_genomes():
+    cars = []
+    ge = []
+    nets = []
 
-    SCREEN.blit(TRACK, (0, 0))
+    # we create a list of our car models and we feed the network with them
+    for i, genome in genomes:
+        cars.append(pygame.sprite.GroupSingle(RaceCar()))
+        ge.append(genome)
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        nets.append(net)
+        genome.fitness = 0
 
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+    while True:        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+        # draw the track on screen
+        SCREEN.blit(TRACK, (0, 0))
 
-    user_input = pygame.key.get_pressed()
-    
-    if sum(user_input) <= 1:
-        car.sprite.isDriving = False
-        car.sprite.direction_vector = 0
+        if len(cars) == 0:
+            break
 
-    if user_input[pygame.K_UP]:
-        car.sprite.isDriving = True
-    else:
-        car.sprite.isDriving = False
+        for i, car in enumerate(cars):
+            ge[i].fitness += 1
 
-    if user_input[pygame.K_RIGHT]:
-        car.sprite.direction_vector = 1
+            # on each iteration we check if cars are alive, if not we remove them
+            if not car.sprite.alive:
+                cars.pop(i)
+                ge.pop(i)
+                nets.pop(i)
+
+        #        Our desicion making
+        #     sensor  ---->    output
+        #       0
+        #       1           steer_left  [0]
+        #       2
+        #       3           steer_right [1]
+        #       4 
+        # 
+        for i, car in enumerate(cars):
+            output = nets[i].activate(car.sprite.getSensorData())
+            if output[0] > 0.8:
+                car.sprite.direction_vector = 1
+            if output[1] > 0.8:
+                car.sprite.direction_vector = -1
+            if output[0] <= 0.8 and output[1] <= 0.8:
+                car.sprite.direction_vector = 0
+
+        
+        # update display
+        for car in cars:
+            car.draw(SCREEN)
+            car.update()
+        pygame.display.update()
+    return
 
 
-    if user_input[pygame.K_LEFT]:
-        car.sprite.direction_vector = -1
+#  Setup the neural network
+#  https://neat-python.readthedocs.io/en/latest/xor_example.html#running-neat
+def main(config_path):
+    global pop
+    config = neat.config.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path
+    )
 
-    # Update car position and rotation
-    car.update()
+    pop = neat.Population(config)
+    pop.add_reporter(neat.StdOutReporter(True))
 
-    # Render
-    car.draw(SCREEN)
-    
-    # Update display
-    pygame.display.update()
+    stats = neat.StatisticsReporter()
+    pop.add_reporter(stats)
+    pop.run(setup_enviroment, 50)
+    return
 
 
 # Run application
-if __name__ == "__main__":
-    pygame.init()  # Initialize Pygame
-
-    # main()
-    running = True
-    while running:
-
-        # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False  # Set running flag to False to exit the loop
-        # Evaluate genomes and update game state
-        eval_genomes()
-
-    pygame.quit()  # Quit Pygame properly
-    sys.exit()  # Exit the script
-
+if __name__ == '__main__':
+    main("config.txt")

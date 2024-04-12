@@ -58,11 +58,11 @@ def setup_enviroment(genomes, config):
         # 
         for i, car in enumerate(cars):
             output = nets[i].activate(car.sprite.getSensorData())
-            if output[0] > 0.8:
+            if output[0] > 0.65:
                 car.sprite.direction_vector = 1
-            if output[1] > 0.8:
+            if output[1] > 0.65:
                 car.sprite.direction_vector = -1
-            if output[0] <= 0.8 and output[1] <= 0.8:
+            if output[0] <= 0.65 and output[1] <= 0.65:
                 car.sprite.direction_vector = 0
 
         
